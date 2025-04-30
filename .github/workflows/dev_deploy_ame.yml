@@ -1,0 +1,28 @@
+
+name: "Dev Deploy to AWS"
+
+on: workflow_dispatch
+
+permissions: write-all
+
+jobs:
+  deploy-aws-stacks:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'main' || 'dev' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy to AWS
+        uses: ./.github/actions/cdk-deploy
+        with:
+          aws_deployment_role: ${{ vars.CDK_ROLE }}
+          aws_region: ${{ vars.AWS_REGION }}
+          knowledge_base_id: ${{ secrets.KNOWLEDGE_BASE_ID }}
+          environment: ${{ github.ref_name }}
+          AZURE_AD_SSO_CLIENT_ID: ${{ secrets.AZURE_AD_SSO_CLIENT_ID }}
+          AZURE_AD_SSO_AUTHORIZATION_ENDPOINT: ${{ vars.AZURE_AD_SSO_AUTHORIZATION_ENDPOINT }}
+          AZURE_AD_SSO_ISSUER: ${{ vars.AZURE_AD_SSO_ISSUER }}
+          AZURE_AD_SSO_TOKEN_ENDPOINT: ${{ vars.AZURE_AD_SSO_TOKEN_ENDPOINT }}
+          AZURE_AD_SSO_USER_INFO_ENDPOINT: ${{ vars.AZURE_AD_SSO_USER_INFO_ENDPOINT }}
+          ADMIN_ROLE_SUFFIX: ${{ vars.ADMIN_ROLE_SUFFIX }}
